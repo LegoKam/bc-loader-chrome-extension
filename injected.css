@@ -140,7 +140,7 @@
   justify-content: space-between;
   padding: 16px 20px;
   flex-shrink: 0;
-  background: var(--bc-primary, #002c5f);
+  background: var(--bc-primary);
 }
 
 #bc-chat-modal .bc-modal-hdr__left {
@@ -153,7 +153,7 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: var(--bc-primary-dark, #003f8a);
+  background: var(--bc-primary-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -170,7 +170,7 @@
   font-size: 15px;
   font-weight: 600;
   color: #ffffff;
-  font-family: var(--bc-font, 'Trebuchet MS', Arial, sans-serif);
+  font-family: var(--bc-font);
   letter-spacing: -0.01em;
 }
 
@@ -229,7 +229,7 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 10300;
-  background: var(--bc-primary, #002c5f);
+  background: var(--bc-primary);
   color: #ffffff;
   font-family: var(--bc-font, 'Trebuchet MS', Arial, sans-serif);
   font-size: 14px;

@@ -261,32 +261,56 @@ function initEventListeners() {
 }
 
 // ── Theme application ─────────────────────────────────────────
-// Maps styleConfig.theme values onto CSS custom properties used
-// by injected.css so the modal header, toast, and labels pick up
-// the brand colours and font without hardcoding them.
+// Called AFTER injectUI() so elements exist.
+// Two-pronged: sets CSS custom properties on :root (for var()
+// references in injected.css) AND applies inline styles directly
+// via element.style — the latter is always CSP-safe and wins
+// regardless of any host-page CSS variable conflicts.
 
 function applyTheme() {
   const theme = _storedConfig.styleConfig?.theme;
   if (!theme) return;
 
-  const vars = {
-    "--bc-primary":      theme["--color-button-submit"]       || theme["--color-primary"]            || "#002c5f",
-    "--bc-primary-dark": theme["--color-button-submit-hover"] || theme["--color-primary"]            || "#003f8a",
-    "--bc-text":         theme["--color-text"]                                                       || "#1f2937",
-    "--bc-font":         theme["--font-family"]                                                      || "'Trebuchet MS', Arial, sans-serif",
-  };
+  const primary     = theme["--color-button-submit"]       || theme["--color-primary"];
+  const primaryDark = theme["--color-button-submit-hover"] || primary;
+  const font        = theme["--font-family"]               || "'Trebuchet MS', Arial, sans-serif";
+  const text        = theme["--color-text"]                || "#1f2937";
 
+  // 1. CSS custom properties on :root (drives var() in injected.css)
   const root = document.documentElement;
-  Object.entries(vars).forEach(([prop, val]) => root.style.setProperty(prop, val));
+  root.style.setProperty("--bc-primary",      primary);
+  root.style.setProperty("--bc-primary-dark", primaryDark);
+  root.style.setProperty("--bc-font",         font);
+  root.style.setProperty("--bc-text",         text);
+
+  // 2. Direct element styles — definitive, CSP-safe, never overridden
+  const q = (sel) => document.querySelector(sel);
+  const hdr       = q("#bc-chat-modal .bc-modal-hdr");
+  const hdrIcon   = q("#bc-chat-modal .bc-modal-hdr__icon");
+  const hdrTitle  = q("#bc-chat-modal .bc-modal-hdr__title");
+  const fabLabel  = q("#bc-fab-button .bc-fab-label");
+  const toast     = document.getElementById("bc-status-toast");
+
+  if (hdr)      { hdr.style.background   = primary; }
+  if (hdrIcon)  { hdrIcon.style.background = primaryDark; }
+  if (hdrTitle) { hdrTitle.style.fontFamily = font; }
+  if (fabLabel) { fabLabel.style.fontFamily = font; fabLabel.style.color = text; }
+  if (toast)    { toast.style.background = primary; }
+
+  console.log("[BC] Theme applied →", { primary, primaryDark, font });
 }
 
 // ── Toast notification ────────────────────────────────────────
 
 function showStatusToast() {
   const brandName = _storedConfig.brandName || "AI Concierge";
+  const theme     = _storedConfig.styleConfig?.theme;
+  const primary   = theme?.["--color-button-submit"] || theme?.["--color-primary"] || null;
+
   const toast = document.createElement("div");
   toast.id = "bc-status-toast";
   toast.textContent = `✓ ${brandName} extension loaded`;
+  if (primary) toast.style.background = primary;
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 4000);
 }
@@ -301,8 +325,8 @@ async function init() {
   const siteDomain = _storedConfig.siteDomain;
   if (siteDomain && !window.location.hostname.endsWith(siteDomain)) return;
 
-  applyTheme();
-  injectUI();
+  injectUI();        // create DOM elements first
+  applyTheme();      // then style them from stored theme config
   initEventListeners();
   setState("fab");
   showStatusToast();
