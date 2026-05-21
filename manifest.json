@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Brand Concierge Injector",
+  "version": "1.4",
+  "description": "Injects the Adobe Brand Concierge experience into Hyundai website pages",
+  "permissions": ["scripting", "activeTab", "storage"],
+  "options_page": "options.html",
+  "host_permissions": [
+    "https://cdn1.adoberesources.net/*",
+    "https://experience.adobe.net/*",
+    "https://experience-stage.adobe.net/*",
+    "https://edge.adobedc.net/*",
+    "https://edge-int.adobedc.net/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["config-bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["injected.css"],
+      "run_at": "document_end",
+      "world": "MAIN"
+    }
+  ]
+}

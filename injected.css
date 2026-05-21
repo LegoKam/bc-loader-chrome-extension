@@ -1,0 +1,265 @@
+/* ============================================================
+   Brand Concierge Injector - injected.css
+   All selectors are prefixed bc- to avoid host-page conflicts.
+   ============================================================ */
+
+/* ── Theme variables (set dynamically by content.js from styleConfig.theme) ── */
+/*
+  --bc-primary        modal header bg, toast bg                (→ --color-button-submit)
+  --bc-primary-dark   modal header icon bg                     (→ --color-button-submit-hover)
+  --bc-text           label / body text                        (→ --color-text)
+  --bc-font           font family for extension chrome only    (→ --font-family)
+*/
+
+/* ── FAB button — pill "Ask a question" style ─────────────────── */
+
+#bc-fab-button {
+  position: fixed !important;
+  bottom: 32px !important;
+  right: 32px !important;
+  z-index: 10000 !important;
+  /* Gradient border via background + padding trick */
+  background: linear-gradient(135deg, #e8445a 0%, #c2185b 35%, #7c3aed 100%);
+  border: none;
+  border-radius: 50px;
+  padding: 2px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(124, 58, 237, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#bc-fab-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(124, 58, 237, 0.35);
+}
+
+#bc-fab-button .bc-fab-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border-radius: 48px;
+  padding: 10px 16px 10px 14px;
+  white-space: nowrap;
+}
+
+#bc-fab-button .bc-fab-sparkle {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+#bc-fab-button .bc-fab-sparkle svg {
+  width: 20px;
+  height: 20px;
+}
+
+#bc-fab-button .bc-fab-label {
+  font-family: var(--bc-font, 'Trebuchet MS', Arial, sans-serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--bc-text, #1f2937);
+  letter-spacing: 0.01em;
+}
+
+#bc-fab-button .bc-fab-beta {
+  font-family: var(--bc-font, 'Trebuchet MS', Arial, sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 20px;
+  padding: 2px 8px;
+  letter-spacing: 0.04em;
+}
+
+#bc-fab-button .bc-fab-arrow {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
+#bc-fab-button .bc-fab-arrow svg {
+  width: 18px;
+  height: 18px;
+}
+
+#bc-fab-button.bc-hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none;
+}
+
+/* ── Modal backdrop ──────────────────────────────────────────── */
+
+#bc-modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 20, 50, 0.5) !important;
+  z-index: 10100 !important;
+  display: none !important;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#bc-modal-backdrop.bc-visible {
+  display: block !important;
+  opacity: 1;
+}
+
+/* ── Chat modal ──────────────────────────────────────────────── */
+
+#bc-chat-modal {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%);
+  width: min(65vw, 900px);
+  height: min(82vh, 760px);
+  border-radius: 16px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 44, 95, 0.3);
+  z-index: 10200 !important;
+  background: #ffffff;
+}
+
+#bc-chat-modal.bc-visible {
+  display: flex !important;
+}
+
+/* Modal header */
+#bc-chat-modal .bc-modal-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  flex-shrink: 0;
+  background: var(--bc-primary, #002c5f);
+}
+
+#bc-chat-modal .bc-modal-hdr__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#bc-chat-modal .bc-modal-hdr__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--bc-primary-dark, #003f8a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+#bc-chat-modal .bc-modal-hdr__icon svg {
+  width: 18px;
+  height: 18px;
+  fill: #ffffff;
+}
+
+#bc-chat-modal .bc-modal-hdr__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  font-family: var(--bc-font, 'Trebuchet MS', Arial, sans-serif);
+  letter-spacing: -0.01em;
+}
+
+#bc-chat-modal .bc-modal-hdr__controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+#bc-chat-modal .bc-ctrl-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.7);
+  transition: background 0.15s, color 0.15s;
+}
+
+#bc-chat-modal .bc-ctrl-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+/* Modal body */
+#bc-chat-modal .bc-modal-body {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Brand Concierge mount ────────────────────────────────────── */
+
+#brand-concierge-mount {
+  width: 100%;
+  height: 100%;
+}
+
+.bc-card__image {
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* ── Status toast ────────────────────────────────────────────── */
+
+#bc-status-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10300;
+  background: var(--bc-primary, #002c5f);
+  color: #ffffff;
+  font-family: var(--bc-font, 'Trebuchet MS', Arial, sans-serif);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 44, 95, 0.35);
+  white-space: nowrap;
+  animation: bc-toast-in 0.25s ease, bc-toast-out 0.4s ease 3.6s forwards;
+}
+
+@keyframes bc-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes bc-toast-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ── Mobile responsive ───────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  #bc-chat-modal {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+  }
+}
