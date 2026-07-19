@@ -1,5 +1,5 @@
 // ============================================================
-// options.js – Brand Concierge Configuration Page
+// options.js – Invocare-Grace Configuration Page
 // ============================================================
 
 function $(id) { return document.getElementById(id); }

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Brand Concierge Injector",
+  "name": "Invocare-Grace",
   "version": "1.4",
-  "description": "Injects the Adobe Brand Concierge experience into Hyundai website pages",
+  "description": "Injects the Adobe Brand Concierge experience into Invocare website pages",
   "permissions": ["scripting", "activeTab", "storage"],
   "options_page": "options.html",
   "host_permissions": [

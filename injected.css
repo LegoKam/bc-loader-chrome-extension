@@ -1,5 +1,5 @@
 /* ============================================================
-   Brand Concierge Injector - injected.css
+   Invocare-Grace - injected.css
    All selectors are prefixed bc- to avoid host-page conflicts.
    ============================================================ */
 
@@ -249,6 +249,444 @@
 @keyframes bc-toast-out {
   from { opacity: 1; }
   to   { opacity: 0; }
+}
+
+/* ── White Lady welcome launcher (overlay mode) ──────────────── */
+
+body > #bc-welcome-launcher {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  background: #fafafa;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  overflow-y: auto;
+}
+
+body > #bc-welcome-launcher.bc-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+body > #bc-welcome-launcher .bc-welcome-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #6b7280;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+body > #bc-welcome-launcher .bc-welcome-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #374151;
+}
+
+#bc-welcome-launcher .bc-welcome-inner {
+  width: min(720px, 100%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+#bc-welcome-launcher .bc-welcome-heading {
+  font-family: var(--bc-font, Georgia, 'Times New Roman', serif);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 400;
+  line-height: 1.25;
+  color: #1f2937;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+#bc-welcome-launcher .bc-welcome-sub {
+  font-family: var(--bc-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  font-size: 15px;
+  line-height: 1.6;
+  color: #6b7280;
+  max-width: 520px;
+  margin: -12px 0 0;
+}
+
+#bc-welcome-launcher .bc-welcome-form {
+  width: 100%;
+  max-width: 640px;
+}
+
+#bc-welcome-launcher .bc-welcome-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 14px 18px 14px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+#bc-welcome-launcher .bc-welcome-input-wrap:focus-within {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+#bc-welcome-launcher .bc-welcome-input__sparkle {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+#bc-welcome-launcher .bc-welcome-input__sparkle svg {
+  width: 20px;
+  height: 20px;
+}
+
+#bc-welcome-launcher #bc-welcome-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--bc-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  font-size: 15px;
+  color: #1f2937;
+  min-width: 0;
+}
+
+#bc-welcome-launcher #bc-welcome-input::placeholder {
+  color: #9ca3af;
+}
+
+#bc-welcome-launcher .bc-welcome-send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s;
+}
+
+#bc-welcome-launcher .bc-welcome-send:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+#bc-welcome-launcher .bc-welcome-send svg {
+  width: 20px;
+  height: 20px;
+}
+
+#bc-welcome-launcher .bc-welcome-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 680px;
+}
+
+#bc-welcome-launcher .bc-welcome-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #ffffff;
+  cursor: pointer;
+  font-family: var(--bc-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.4;
+  text-align: left;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  max-width: 100%;
+}
+
+#bc-welcome-launcher .bc-welcome-chip:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+#bc-welcome-launcher .bc-welcome-chip__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+#bc-welcome-launcher .bc-welcome-chip__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+#bc-welcome-launcher .bc-welcome-footer {
+  font-family: var(--bc-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  font-size: 12px;
+  line-height: 1.7;
+  color: #9ca3af;
+  max-width: 560px;
+  margin: 8px 0 0;
+}
+
+#bc-welcome-launcher .bc-welcome-footer a {
+  color: #6b7280;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+#bc-welcome-launcher .bc-welcome-footer a:hover {
+  color: #374151;
+}
+
+@media (max-width: 640px) {
+  #bc-welcome-launcher .bc-welcome-suggestions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #bc-welcome-launcher .bc-welcome-chip {
+    justify-content: flex-start;
+  }
+}
+
+body.bc-welcome-open {
+  overflow: hidden !important;
+}
+
+body.bc-chat-open {
+  overflow: hidden !important;
+}
+
+/* ── Inline injection (White Lady / .root.responsivegrid) ─────── */
+
+#bc-inline-concierge {
+  width: 100%;
+  padding: 28px 20px 36px;
+  background: transparent;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgba(92, 24, 48, 0.1);
+}
+
+#bc-inline-concierge #bc-welcome-launcher {
+  position: static !important;
+  inset: auto !important;
+  z-index: auto !important;
+  display: flex !important;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  overflow: visible;
+}
+
+#bc-inline-concierge #bc-welcome-launcher:not(.bc-visible) {
+  display: none !important;
+}
+
+#bc-inline-concierge .bc-welcome-inner {
+  width: min(760px, 100%);
+  gap: 16px;
+}
+
+#bc-inline-concierge .bc-welcome-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+#bc-inline-concierge .bc-welcome-heading {
+  font-family: var(--bc-font, Georgia, 'Times New Roman', serif);
+  font-size: clamp(22px, 2.8vw, 30px);
+  font-weight: 400;
+  line-height: 1.3;
+  color: #3d2b2f;
+  letter-spacing: -0.02em;
+  margin: 0;
+  max-width: 540px;
+}
+
+#bc-inline-concierge .bc-welcome-sub {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #6b5c60;
+  max-width: 480px;
+  margin: 0;
+}
+
+#bc-inline-concierge .bc-welcome-form {
+  width: 100%;
+  max-width: 640px;
+  margin-top: 4px;
+}
+
+#bc-inline-concierge .bc-welcome-input-wrap {
+  padding: 11px 14px 11px 16px;
+  border-color: #ddd5cf;
+  box-shadow: none;
+}
+
+#bc-inline-concierge .bc-welcome-input-wrap:focus-within {
+  border-color: #5C1830;
+  box-shadow: 0 0 0 3px rgba(92, 24, 48, 0.08);
+}
+
+#bc-inline-concierge .bc-welcome-suggestions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 640px;
+  margin-top: 2px;
+}
+
+#bc-inline-concierge .bc-welcome-chip {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border-color: #ddd5cf;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 400;
+  color: #3d2b2f;
+  text-align: left;
+  justify-content: flex-start;
+  transform: none;
+}
+
+#bc-inline-concierge .bc-welcome-chip:hover {
+  border-color: #5C1830;
+  background: #fdfbfb;
+  box-shadow: none;
+  transform: none;
+}
+
+#bc-inline-concierge .bc-welcome-chip__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+#bc-inline-concierge .bc-welcome-footer {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #9a8f93;
+  max-width: 520px;
+  margin: 4px 0 0;
+}
+
+#bc-inline-concierge .bc-welcome-footer a {
+  color: #5C1830;
+}
+
+#bc-inline-concierge .bc-welcome-footer a:hover {
+  color: #3d121f;
+}
+
+@media (max-width: 640px) {
+  #bc-inline-concierge {
+    padding: 20px 16px 28px;
+  }
+
+  #bc-inline-concierge .bc-welcome-inner {
+    gap: 14px;
+  }
+
+  #bc-inline-concierge .bc-welcome-suggestions {
+    grid-template-columns: 1fr;
+  }
+}
+
+#bc-inline-concierge #bc-chat-panel {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  min-height: min(72vh, 720px);
+  margin-top: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+#bc-inline-concierge #bc-chat-panel.bc-visible {
+  display: flex;
+}
+
+#bc-inline-concierge #bc-chat-panel .bc-modal-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  flex-shrink: 0;
+  background: var(--bc-primary, #5C1830);
+}
+
+#bc-inline-concierge #bc-chat-panel .bc-modal-hdr__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#bc-inline-concierge #bc-chat-panel .bc-modal-hdr__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--bc-primary-dark, #4a1226);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+#bc-inline-concierge #bc-chat-panel .bc-modal-hdr__icon svg {
+  width: 18px;
+  height: 18px;
+  fill: #ffffff;
+}
+
+#bc-inline-concierge #bc-chat-panel .bc-modal-hdr__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  font-family: var(--bc-font);
+}
+
+#bc-inline-concierge #bc-chat-panel .bc-modal-body {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-height: 480px;
+}
+
+#bc-inline-concierge #brand-concierge-mount {
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
 }
 
 /* ── Mobile responsive ───────────────────────────────────────── */
