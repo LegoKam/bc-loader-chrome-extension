@@ -292,6 +292,29 @@ function buildChatModalHtml(brandName) {
   `;
 }
 
+function buildFabButtonHtml(label) {
+  return `
+    <span class="bc-fab-inner">
+      <span class="bc-fab-sparkle">${SPARKLE_SVG}</span>
+      <span class="bc-fab-label">${label}</span>
+      <span class="bc-fab-arrow">${ARROW_SVG}</span>
+    </span>
+  `;
+}
+
+function injectFloatingBar({ label, hidden = false } = {}) {
+  if (document.getElementById("bc-fab-button")) return null;
+
+  const brandName = _storedConfig.brandName || "Grace";
+  const fab = document.createElement("button");
+  fab.id = "bc-fab-button";
+  fab.setAttribute("aria-label", label || `Ask ${brandName} a question`);
+  if (hidden) fab.classList.add("bc-hidden");
+  fab.innerHTML = buildFabButtonHtml(label || `Ask ${brandName} a question`);
+  document.body.appendChild(fab);
+  return fab;
+}
+
 function injectInlineConcierge(target) {
   if (document.getElementById("bc-inline-concierge")) return;
 
@@ -304,24 +327,16 @@ function injectInlineConcierge(target) {
   `);
 
   document.body.insertAdjacentHTML("beforeend", buildChatModalHtml(brandName));
+  injectFloatingBar({ label: `Ask ${brandName} a question`, hidden: true });
 }
 
 function injectOverlayUI() {
   if (document.getElementById("bc-fab-button")) return;
 
   const brandName = _storedConfig.brandName || "AI Concierge";
-
-  const fab = document.createElement("button");
-  fab.id = "bc-fab-button";
-  fab.setAttribute("aria-label", `Open ${brandName}`);
-  fab.innerHTML = `
-    <span class="bc-fab-inner">
-      <span class="bc-fab-sparkle">${SPARKLE_SVG}</span>
-      <span class="bc-fab-label">Ask a question</span>
-      <span class="bc-fab-arrow">${ARROW_SVG}</span>
-    </span>
-  `;
-  document.body.appendChild(fab);
+  injectFloatingBar({ label: "Ask a question" });
+  const fab = document.getElementById("bc-fab-button");
+  fab?.setAttribute("aria-label", `Open ${brandName}`);
 
   document.body.insertAdjacentHTML("beforeend", buildChatModalHtml(brandName));
 }
@@ -358,6 +373,7 @@ function setState(newState) {
     modal?.classList.toggle("bc-visible", newState === "chat");
     backdrop?.classList.toggle("bc-visible", newState === "chat");
     document.body.classList.toggle("bc-chat-open", newState === "chat");
+    updateInlineFloatingBar();
     return;
   }
 
@@ -611,11 +627,51 @@ function initWelcomeListeners() {
   }
 }
 
+// ── Inline floating bar (show when #bc-inline-concierge is off-screen) ──
+
+let _inlineConciergeInView = true;
+
+function updateInlineFloatingBar() {
+  const fab = document.getElementById("bc-fab-button");
+  if (!fab || !isInlineSite()) return;
+  const shouldShow = !_inlineConciergeInView && currentState !== "chat";
+  fab.classList.toggle("bc-hidden", !shouldShow);
+}
+
+function handleInlineFloatingBarClick() {
+  const target = document.getElementById("bc-inline-concierge");
+  if (!target) return;
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  setTimeout(() => {
+    document.getElementById("bc-welcome-input")?.focus();
+  }, 400);
+}
+
+function initInlineFloatingBar() {
+  const fab = document.getElementById("bc-fab-button");
+  const target = document.getElementById("bc-inline-concierge");
+  if (!fab || !target || fab.dataset.bcInlineObserver) return;
+  fab.dataset.bcInlineObserver = "1";
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      _inlineConciergeInView = entry.isIntersecting;
+      updateInlineFloatingBar();
+    },
+    { threshold: 0.15 }
+  );
+  observer.observe(target);
+
+  fab.addEventListener("click", handleInlineFloatingBarClick);
+  updateInlineFloatingBar();
+}
+
 // ── Event wiring ──────────────────────────────────────────────
 
 function initEventListeners() {
   if (isInlineSite()) {
     initWelcomeListeners();
+    initInlineFloatingBar();
     document.getElementById("bc-btn-close")?.addEventListener("click", handleClose);
     document.getElementById("bc-modal-backdrop")?.addEventListener("click", handleClose);
     document.addEventListener("keydown", (e) => {
