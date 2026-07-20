@@ -513,6 +513,56 @@ function removeCompanyElementFromModal() {
   return false;
 }
 
+function rewriteEnterpriseSpecialistMatch(match) {
+  if (match === match.toUpperCase()) return "FUNERAL SPECIALIST";
+  if (match[0] === match[0].toUpperCase()) return "Funeral Specialist";
+  return "funeral specialist";
+}
+
+function rewriteEnterpriseSpecialistText(value) {
+  if (!value || typeof value !== "string") return value;
+  return value.replace(/enterprise specialist/gi, rewriteEnterpriseSpecialistMatch);
+}
+
+function replaceEnterpriseSpecialistInModal() {
+  const root = document.getElementById("bc-chat-modal") || getConciergeRoot();
+  if (!root) return false;
+
+  let changed = false;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) {
+    const next = rewriteEnterpriseSpecialistText(node.nodeValue);
+    if (next !== node.nodeValue) {
+      node.nodeValue = next;
+      changed = true;
+    }
+  }
+
+  root.querySelectorAll("[placeholder], [aria-label], [title], [alt]").forEach((el) => {
+    ["placeholder", "aria-label", "title", "alt"].forEach((attr) => {
+      const current = el.getAttribute(attr);
+      const next = rewriteEnterpriseSpecialistText(current);
+      if (next !== current) {
+        el.setAttribute(attr, next);
+        changed = true;
+      }
+    });
+  });
+
+  root.querySelectorAll("input, textarea").forEach((el) => {
+    if (typeof el.value !== "string") return;
+    const next = rewriteEnterpriseSpecialistText(el.value);
+    if (next !== el.value) {
+      el.value = next;
+      changed = true;
+    }
+  });
+
+  if (changed) console.log('[BC] Replaced "enterprise specialist" → "funeral specialist"');
+  return changed;
+}
+
 function observeModalCustomizations() {
   const mount = document.getElementById("brand-concierge-mount");
   if (!mount || mount.dataset.bcModalCustomizations) return;
@@ -521,6 +571,7 @@ function observeModalCustomizations() {
   const run = () => {
     removeCompanyElementFromModal();
     customizeProductOfInterestField();
+    replaceEnterpriseSpecialistInModal();
     trySendPendingMessage();
   };
 
@@ -639,12 +690,8 @@ function updateInlineFloatingBar() {
 }
 
 function handleInlineFloatingBarClick() {
-  const target = document.getElementById("bc-inline-concierge");
-  if (!target) return;
-  target.scrollIntoView({ behavior: "smooth", block: "center" });
-  setTimeout(() => {
-    document.getElementById("bc-welcome-input")?.focus();
-  }, 400);
+  // Open Brand Concierge chat modal (styled by styleConfig JSON)
+  launchChatWithMessage(null);
 }
 
 function initInlineFloatingBar() {
