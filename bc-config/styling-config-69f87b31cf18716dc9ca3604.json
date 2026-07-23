@@ -1,0 +1,286 @@
+{
+  "metadata": {
+    "brandName": "Invocare",
+    "version": "1.0.0",
+    "language": "en-US",
+    "namespace": "brand-concierge"
+  },
+  "behavior": {
+    "multimodalCarousel": {
+      "cardClickAction": "openLink"
+    },
+    "input": {
+      "enableVoiceInput": false,
+      "continuousVoiceMode": false,
+      "disableMultiline": true,
+      "showAiChatIcon": {
+        "icon": "test"
+      }
+    },
+    "chat": {
+      "messageAlignment": "normal",
+      "messageWidth": "100%"
+    },
+    "privacyNotice": {
+      "title": "Privacy Notice",
+      "text": "Invocare is committed to protecting your personal information.",
+      "links": [
+        {
+          "text": "Privacy Policy",
+          "url": "https://www.invocare.com.au/terms-and-conditions"
+        }
+      ]
+    },
+    "meetingForm": {
+      "fieldsPerRow": 2,
+      "fieldLayoutRules": {
+        "textInputs": {
+          "allowTwoColumns": true,
+          "fieldTypes": [
+            "string",
+            "email",
+            "tel",
+            "number"
+          ]
+        },
+        "dropdowns": {
+          "allowTwoColumns": false,
+          "fieldTypes": [
+            "select"
+          ],
+          "identifyBy": "hasOptions"
+        },
+        "checkboxes": {
+          "allowTwoColumns": false,
+          "fieldTypes": [
+            "boolean",
+            "checkbox"
+          ]
+        }
+      },
+      "title": {
+        "text": "Schedule meeting",
+        "alignment": "left"
+      },
+      "subtitle": {
+        "text": "We're here to help. Please fill out the form below and one of our caring team members will follow up to confirm a time that works for you.",
+        "alignment": "left"
+      },
+      "buttons": {
+        "submit": {
+          "text": "Schedule meeting",
+          "alignment": "left"
+        },
+        "cancel": {
+          "text": "Cancel",
+          "alignment": "left"
+        }
+      }
+    },
+    "calendarWidget": {
+      "title": {
+        "text": "Book a meeting",
+        "alignment": "left"
+      },
+      "subtitle": {
+        "text": "Please select a time that suits you. Our team will confirm your appointment and be in touch shortly.",
+        "alignment": "left"
+      },
+      "postTitle": {
+        "text": "Once confirmed, you'll receive a calendar invite with all the details. Our specialist will already have the context from this conversation, so there's no need to repeat anything. We look forward to supporting you.",
+        "alignment": "left"
+      },
+      "buttons": {
+        "confirm": {
+          "text": "Confirm appointment",
+          "alignment": "left"
+        },
+        "cancel": {
+          "text": "Cancel",
+          "alignment": "left"
+        }
+      }
+    },
+    "productCard": {
+      "actionButtonSize": "S"
+    }
+  },
+  "disclaimer": {
+    "text": "",
+    "links": [
+      {
+        "text": "Terms",
+        "url": "https://www.invocare.com.au/terms-conditions/"
+      }
+    ]
+  },
+  "text": {
+    "welcome.heading": "Welcome to InvoCare",
+    "welcome.subheading": "InvoCare is here to guide you through funeral, cremation, and memorial services with care and compassion. Ask us about our services, locations, or pre-arranged funeral planning.",
+    "input.placeholder": "Ask me anything about InvoCare",
+    "input.messageInput.aria": "Message input",
+    "input.send.aria": "Send message",
+    "input.aiChatIcon.tooltip": "Ask AI",
+    "input.mic.aria": "Voice input",
+    "card.aria.select": "Select example message",
+    "carousel.prev.aria": "Previous cards",
+    "carousel.next.aria": "Next cards",
+    "scroll.bottom.aria": "Scroll to bottom",
+    "error.network": "I'm sorry, I'm having trouble connecting to our services right now.",
+    "loading.message": "Grace is thinking...",
+    "feedback.dialog.title.positive": "Your feedback is appreciated",
+    "feedback.dialog.title.negative": "Your feedback is appreciated",
+    "feedback.dialog.question.positive": "What went well? Select all that apply.",
+    "feedback.dialog.question.negative": "What went wrong? Select all that apply.",
+    "feedback.dialog.notes": "Notes",
+    "feedback.dialog.submit": "Submit",
+    "feedback.dialog.cancel": "Cancel",
+    "feedback.dialog.notes.placeholder": "Additional notes (optional)",
+    "feedback.toast.success": "Thank you for the feedback.",
+    "feedback.thumbsUp.aria": "Thumbs up",
+    "feedback.thumbsDown.aria": "Thumbs down"
+  },
+  "arrays": {
+    "welcome.examples": [
+      {
+        "text": "Find a funeral home near me",
+        "systemPrompt": "",
+        "imageUrl": "https://s3-media0.fl.yelpcdn.com/bphoto/jMa5uZrIiZ86upSdPKvTEw/1000s.jpg",
+        "imageName": "",
+        "image": "https://s3-media0.fl.yelpcdn.com/bphoto/jMa5uZrIiZ86upSdPKvTEw/1000s.jpg"
+      },
+      {
+        "text": "What is pre-arranged funeral planning?",
+        "systemPrompt": "",
+        "imageUrl": "https://www.whiteladyfunerals.com.au/content/dam/invocare/white-lady-mpf/white-lady/wac-imagery/brand-images/whitelady-select-2250x1500px-0739.jpg",
+        "imageName": "",
+        "image": "https://www.whiteladyfunerals.com.au/content/dam/invocare/white-lady-mpf/white-lady/wac-imagery/brand-images/whitelady-select-2250x1500px-0739.jpg"
+      },
+      {
+        "text": "What grief support resources are available?",
+        "systemPrompt": "",
+        "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREKonrfI21_YgR02CjzmlAM7dbsltzQwWZVoweDLKlMmoJefc4EDjUvgLZ&s=10",
+        "imageName": "",
+        "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREKonrfI21_YgR02CjzmlAM7dbsltzQwWZVoweDLKlMmoJefc4EDjUvgLZ&s=10"
+      }
+    ],
+    "feedback.positive.options": [
+      "Helpful and relevant recommendations",
+      "Clear and easy to understand",
+      "Friendly and conversational tone",
+      "Visually appealing presentation",
+      "Other"
+    ],
+    "feedback.negative.options": [
+      "Not helpful or relevant",
+      "Confusing or unclear",
+      "Too formal or robotic",
+      "Poor visual presentation",
+      "Other"
+    ]
+  },
+  "assets": {
+    "icons": {
+      "company": ""
+    }
+  },
+  "theme": {
+    "--welcome-heading-size-desktop": "28px",
+    "--welcome-heading-size-mobile": "28px",
+    "--welcome-heading-weight": "700",
+    "--welcome-heading-text-align": "center",
+    "--welcome-subheading-size-desktop": "16px",
+    "--welcome-subheading-size-mobile": "16px",
+    "--welcome-subheading-text-align": "center",
+    "--welcome-padding": "24px",
+    "--prompt-suggestion-background": "#F8F8F8",
+    "--prompt-suggestion-background-hover": "#E1E1E1",
+    "--prompt-suggestion-text-color": "#292929",
+    "--prompt-suggestion-border-color": "transparent",
+    "--welcome-input-order": "3",
+    "--welcome-cards-order": "2",
+    "--font-family": "'Adobe Clean', adobe-clean, 'Trebuchet MS', sans-serif",
+    "--color-primary": "#007bff",
+    "--color-text": "#131313",
+    "--line-height-body": "1.75",
+    "--main-container-background": "#FFFFFF",
+    "--input-height": "52px",
+    "--input-height-mobile": "52px",
+    "--input-border-radius": "12px",
+    "--input-border-radius-mobile": "12px",
+    "--input-background": "#FFFFFF",
+    "--input-outline-color": "#9B2C45",
+    "--input-outline-width": "2px",
+    "--input-box-shadow": "0 4px 16px 0 #00000029",
+    "--input-focus-outline-width": "2px",
+    "--input-focus-outline-color": "#9B2C45",
+    "--input-font-size": "16px",
+    "--input-font-weight": "400",
+    "--input-text-color": "#9B2C45",
+    "--input-button-height": "32px",
+    "--input-button-width": "32px",
+    "--submit-button-fill-color": "#FFFFFF",
+    "--submit-button-fill-color-disabled": "#FFFFFF",
+    "--color-button-submit": "#9B2C45",
+    "--color-button-submit-hover": "#9B2C45",
+    "--input-button-border-radius": "8px",
+    "--button-disabled-background": "#9B2C45",
+    "--disclaimer-color": "transparent",
+    "--disclaimer-font-size": "0px",
+    "--disclaimer-font-weight": "400",
+    "--message-user-background": "#9B2C45",
+    "--message-user-text": "#FFFFFF",
+    "--message-border-radius": "10px",
+    "--message-padding": "8px 16px",
+    "--message-concierge-background": "#E8ECF5",
+    "--message-concierge-text": "#9B2C45",
+    "--message-max-width": "100%",
+    "--chat-interface-max-width": "768px",
+    "--message-blocker-height": "105px",
+    "--citations-text-font-weight": "700",
+    "--citations-desktop-button-font-size": "14px",
+    "--feedback-icon-btn-background": "#FFFFFF",
+    "--feedback-icon-btn-hover-background": "#FFFFFF",
+    "--feedback-icon-btn-size-desktop": "32px",
+    "--feedback-container-gap": "4px",
+    "--multimodal-card-box-shadow": "none",
+    "--border-radius-card": "16px",
+    "--button-height-s": "30px",
+    "--button-primary-background": "#3B63FB",
+    "--button-primary-text": "#FFFFFF",
+    "--button-primary-hover": "#274dea",
+    "--button-secondary-border": "#2C2C2C",
+    "--button-secondary-text": "#2C2C2C",
+    "--button-secondary-hover": "#000",
+    "--color-button-secondary-hover-text": "#FFFFFF",
+    "--privacy-notice-background": "#FFFFFF",
+    "--privacy-notice-padding": "10px 12px",
+    "--privacy-notice-text-font-size": "12px",
+    "--privacy-notice-title-font-size": "12px",
+    "--message-concierge-link-decoration": "underline",
+    "--input-icon-color": "#9B2C45",
+    "--icon-size-small": "20px",
+    "--welcome-heading-text-color": "#9B2C45",
+    "--welcome-subheading-text-color": "#9B2C45",
+    "--prompt-suggestion-button-background": "#F8F8F8",
+    "--prompt-suggestion-button-background-hover": "#E1E1E1",
+    "--prompt-suggestion-button-text-color": "#292929",
+    "--card-border-radius": "1px",
+    "--card-text-background": "#9B2C45",
+    "--card-text-border-radius": "1px",
+    "--card-text-color": "#FFFFFF",
+    "--card-text-font-size": "14px",
+    "--card-text-padding": "8px 10px",
+    "--prompt-pill-background": "#F8F8F8",
+    "--prompt-pill-border-color": "#E1E1E1",
+    "--border-radius-pill": "20px",
+    "--prompt-pill-text-color": "#1A1A2E",
+    "--prompt-pill-button-text-padding": "8px 16px",
+    "--chat-container-background": "#FFFFFF",
+    "--chat-container-bottom-background": "#FFFFFF",
+    "--main-container-bottom-background": "#FFFFFF",
+    "--message-blocker-background": "#FFFFFF",
+    "--disclaimer-margin-top": "0px",
+    "--disclaimer-margin-bottom": "0px"
+  }
+}
