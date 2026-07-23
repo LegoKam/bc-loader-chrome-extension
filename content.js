@@ -519,48 +519,105 @@ function rewriteEnterpriseSpecialistMatch(match) {
   return "funeral specialist";
 }
 
-function rewriteEnterpriseSpecialistText(value) {
+const UI_TEXT_REPLACEMENTS = [
+  { pattern: /enterprise specialist/gi, replace: rewriteEnterpriseSpecialistMatch },
+  { pattern: /tennis-australia-demo\s*\(\s*VA7\s*\)/gi, replace: "KR Demo instance" },
+];
+
+function rewriteUiText(value) {
   if (!value || typeof value !== "string") return value;
-  return value.replace(/enterprise specialist/gi, rewriteEnterpriseSpecialistMatch);
+  let next = value;
+  for (const { pattern, replace } of UI_TEXT_REPLACEMENTS) {
+    next = next.replace(new RegExp(pattern.source, pattern.flags), replace);
+  }
+  return next;
 }
 
-function replaceEnterpriseSpecialistInModal() {
-  const root = document.getElementById("bc-chat-modal") || getConciergeRoot();
+function applyUiTextReplacements(root) {
   if (!root) return false;
 
   let changed = false;
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  let node;
-  while ((node = walker.nextNode())) {
-    const next = rewriteEnterpriseSpecialistText(node.nodeValue);
-    if (next !== node.nodeValue) {
-      node.nodeValue = next;
-      changed = true;
-    }
-  }
 
-  root.querySelectorAll("[placeholder], [aria-label], [title], [alt]").forEach((el) => {
-    ["placeholder", "aria-label", "title", "alt"].forEach((attr) => {
-      const current = el.getAttribute(attr);
-      const next = rewriteEnterpriseSpecialistText(current);
-      if (next !== current) {
-        el.setAttribute(attr, next);
+  const visit = (nodeRoot) => {
+    if (!nodeRoot) return;
+
+    const walker = document.createTreeWalker(nodeRoot, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      const next = rewriteUiText(node.nodeValue);
+      if (next !== node.nodeValue) {
+        node.nodeValue = next;
         changed = true;
       }
-    });
-  });
-
-  root.querySelectorAll("input, textarea").forEach((el) => {
-    if (typeof el.value !== "string") return;
-    const next = rewriteEnterpriseSpecialistText(el.value);
-    if (next !== el.value) {
-      el.value = next;
-      changed = true;
     }
+
+    if (nodeRoot.querySelectorAll) {
+      nodeRoot.querySelectorAll("[placeholder], [aria-label], [title], [alt]").forEach((el) => {
+        ["placeholder", "aria-label", "title", "alt"].forEach((attr) => {
+          const current = el.getAttribute(attr);
+          const next = rewriteUiText(current);
+          if (next !== current) {
+            el.setAttribute(attr, next);
+            changed = true;
+          }
+        });
+      });
+
+      nodeRoot.querySelectorAll("input, textarea").forEach((el) => {
+        if (typeof el.value !== "string") return;
+        const next = rewriteUiText(el.value);
+        if (next !== el.value) {
+          el.value = next;
+          changed = true;
+        }
+      });
+
+      nodeRoot.querySelectorAll("*").forEach((el) => {
+        if (el.shadowRoot) visit(el.shadowRoot);
+      });
+    }
+  };
+
+  visit(root);
+  return changed;
+}
+
+function replaceUiTextInModal() {
+  const root = document.getElementById("bc-chat-modal") || getConciergeRoot();
+  if (!root) return false;
+  const changed = applyUiTextReplacements(root);
+  if (changed) console.log("[BC] Applied UI text replacements in Brand Concierge modal");
+  return changed;
+}
+
+function isAdobeExperienceUi() {
+  return window.location.hostname === "experience.adobe.com";
+}
+
+function initAdobeExperienceTextOverrides() {
+  if (document.documentElement.dataset.bcAdobeTextOverrides) return;
+  document.documentElement.dataset.bcAdobeTextOverrides = "1";
+
+  let timer = null;
+  const run = () => {
+    const changed = applyUiTextReplacements(document.body || document.documentElement);
+    if (changed) console.log('[BC] Replaced "tennis-australia-demo (VA7)" → "KR Demo instance" on Adobe Experience UI');
+  };
+  const schedule = () => {
+    clearTimeout(timer);
+    timer = setTimeout(run, 50);
+  };
+
+  run();
+  new MutationObserver(schedule).observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    characterData: true,
   });
 
-  if (changed) console.log('[BC] Replaced "enterprise specialist" → "funeral specialist"');
-  return changed;
+  // Hash SPA navigations on experience.adobe.com
+  window.addEventListener("hashchange", schedule);
+  console.log("[BC] Adobe Experience UI text overrides active");
 }
 
 function observeModalCustomizations() {
@@ -571,7 +628,7 @@ function observeModalCustomizations() {
   const run = () => {
     removeCompanyElementFromModal();
     customizeProductOfInterestField();
-    replaceEnterpriseSpecialistInModal();
+    replaceUiTextInModal();
     trySendPendingMessage();
   };
 
@@ -796,6 +853,12 @@ function showStatusToast() {
 async function init() {
   // Receive stored config from the isolated-world bridge before doing anything
   _storedConfig = await waitForBridgeConfig();
+
+  // Adobe Experience Brand Concierge console (instance switcher label rewrite)
+  if (isAdobeExperienceUi()) {
+    initAdobeExperienceTextOverrides();
+    return;
+  }
 
   // Only inject on the configured site domain
   const siteDomain = _storedConfig.siteDomain;
