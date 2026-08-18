@@ -2,3 +2,4 @@
 *.zip
 alloy.min.js
 main.js
+node_modules/
