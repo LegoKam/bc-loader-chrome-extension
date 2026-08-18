@@ -1,4 +1,4 @@
-# Invocare-Grace — Chrome Extension
+# Vision Super Assistant — Chrome Extension
 
 Injects the Adobe Experience Platform **Brand Concierge** chat experience into any website via a floating "Ask a question" button. All configuration is managed through the extension's built-in Options page — no code changes required.
 

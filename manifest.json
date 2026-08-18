@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Invocare-Grace",
-  "version": "1.4",
-  "description": "Injects the Adobe Brand Concierge experience into Invocare website pages",
+  "name": "Vision Super Assistant",
+  "version": "1.5",
+  "description": "Injects the Adobe Brand Concierge experience into Vision Super website pages",
   "permissions": ["scripting", "activeTab", "storage"],
   "options_page": "options.html",
   "host_permissions": [

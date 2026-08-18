@@ -1,5 +1,5 @@
 // ============================================================
-// options.js – Invocare-Grace Configuration Page
+// options.js – Vision Super Assistant Configuration Page
 // ============================================================
 
 function $(id) { return document.getElementById(id); }

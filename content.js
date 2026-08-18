@@ -1,5 +1,5 @@
 // ============================================================
-// Invocare-Grace - content.js
+// Vision Super Assistant - content.js
 // Mirrors the pattern from ao_concierge_demo.html:
 //   - Alloy stub + CDN scripts loaded eagerly in background
 //   - FAB button → modal dialog on click
@@ -78,49 +78,61 @@ const ARROW_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org
   <path d="M9 18l6-6-6-6" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>`;
 
-const WHITE_LADY_HOST = "whiteladyfunerals.com.au";
-
-const WL_SPARKLE_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M12 2L13.5 9.5L21 11L13.5 12.5L12 20L10.5 12.5L3 11L10.5 9.5L12 2Z" fill="#5C1830"/>
-  <path d="M19 2L19.75 5.25L23 6L19.75 6.75L19 10L18.25 6.75L15 6L18.25 5.25L19 2Z" fill="#5C1830"/>
-</svg>`;
-
-const WL_SEND_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+const SEND_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M22 2L11 13" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>`;
 
-const WL_PHONE_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="#5C1830" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>`;
-
-const WL_WELCOME = {
-  heading: "Let us help you find what you're looking for...",
-  subheading: "Grace is here to help guide you to the answers you need. Share what's on your mind to get started.",
-  placeholder: "Write your message...",
-  suggestions: [
-    "What do I need to know about funerals before I call?",
-    "Looking for help to plan ahead?",
-    "Not sure where to start?",
-    { text: "Rather speak with a White Lady?", icon: "phone" },
-  ],
+const WELCOME = {
+  heading: "How can we help?",
+  subheading: "Ask your question below and get instant guidance.",
+  placeholder: "Ask a question...",
+  suggestions: [],
   footer: {
-    phone: "1300 286 821",
-    phoneHref: "tel:1300286821",
-    privacyHref: "https://www.whiteladyfunerals.com.au/privacy-policy",
+    phone: "",
+    phoneHref: "",
+    privacyHref: "",
   },
 };
 
-function isWhiteLadySite() {
-  return window.location.hostname.endsWith(WHITE_LADY_HOST);
-}
-
 function isInlineSite() {
-  return isWhiteLadySite();
+  return false;
 }
 
 function getConciergeRoot() {
   return document.getElementById("bc-chat-modal") || document.getElementById("bc-inline-concierge");
+}
+
+// Primary Vision Super page target for the inline message text box.
+// Use stable live DOM first, then legacy/user-provided fallbacks.
+const MESSAGE_BOX_XPATH_CANDIDATES = [
+  "/html/body/div[2]/main/div[1]",
+  "/html/body/div[1]/main/div[2]",
+  "/html/body/div[1]/main/div[1]/div/div[1]",
+  "/html/body/div[2]/main/div[2]/div/div[1]/div[1]",
+  "//div[@id='main-content']//div[contains(@class,'hero__content')]",
+];
+
+let _messageBoxObserver = null;
+let _messageBoxReinjectTimer = null;
+let _messageBoxInjecting = false;
+let _messageBoxFormInView = false;
+let _messageBoxFormObserver = null;
+let _messageBoxFormObservedEl = null;
+
+function queryByXPath(xpath) {
+  try {
+    return document.evaluate(
+      xpath,
+      document,
+      null,
+      XPathResult.FIRST_ORDERED_NODE_TYPE,
+      null
+    ).singleNodeValue;
+  } catch (e) {
+    console.warn("[BC] Invalid XPath:", xpath, e);
+    return null;
+  }
 }
 
 function waitForInjectionTarget(selector = ".root.responsivegrid", maxWaitMs = 10000) {
@@ -148,6 +160,134 @@ function waitForInjectionTarget(selector = ".root.responsivegrid", maxWaitMs = 1
       resolve(null);
     }, maxWaitMs);
   });
+}
+
+function waitForXPathTarget(xpath, maxWaitMs = 10000) {
+  return new Promise((resolve) => {
+    const check = () => queryByXPath(xpath);
+    const found = check();
+    if (found) {
+      resolve(found);
+      return;
+    }
+
+    const observer = new MutationObserver(() => {
+      const el = check();
+      if (el) {
+        observer.disconnect();
+        clearTimeout(giveUp);
+        resolve(el);
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    const giveUp = setTimeout(() => {
+      observer.disconnect();
+      console.warn("[BC] XPath injection target not found:", xpath);
+      resolve(null);
+    }, maxWaitMs);
+  });
+}
+
+function getMessageBoxTargetImmediate() {
+  for (const xpath of MESSAGE_BOX_XPATH_CANDIDATES) {
+    const el = queryByXPath(xpath);
+    if (!el) continue;
+
+    // User-requested hero banner anchor: place textbox right after hero.
+    if (xpath === "/html/body/div[2]/main/div[1]") {
+      return { el, source: `xpath:${xpath}`, position: "afterend" };
+    }
+
+    // On live Vision Super home page fallback, inject before Quick links block.
+    if (xpath === "/html/body/div[1]/main/div[2]") {
+      return { el, source: `xpath:${xpath}`, position: "beforebegin" };
+    }
+
+    return { el, source: `xpath:${xpath}`, position: "afterbegin" };
+  }
+
+  const selectorFallbacks = [
+    "#main-content .hero__content",
+    "main .hero__content",
+    "main .hero__inner",
+    "main",
+  ];
+
+  for (const selector of selectorFallbacks) {
+    const el = document.querySelector(selector);
+    if (el) return { el, source: `selector:${selector}`, position: "afterbegin" };
+  }
+
+  return null;
+}
+
+function waitForMessageBoxTarget(maxWaitMs = 10000) {
+  return new Promise((resolve) => {
+    const immediate = getMessageBoxTargetImmediate();
+    if (immediate) {
+      resolve(immediate);
+      return;
+    }
+
+    const observer = new MutationObserver(() => {
+      const found = getMessageBoxTargetImmediate();
+      if (found) {
+        observer.disconnect();
+        clearTimeout(giveUp);
+        resolve(found);
+      }
+    });
+
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    const giveUp = setTimeout(() => {
+      observer.disconnect();
+      resolve(null);
+    }, maxWaitMs);
+  });
+}
+
+function updateFloatingPillVisibilityForMessageBox() {
+  const fab = document.getElementById("bc-fab-button");
+  if (!fab || isInlineSite()) return;
+
+  // Hide right-side pill while the inline form is visible.
+  const shouldShow = currentState === "fab" && !_messageBoxFormInView;
+  fab.classList.toggle("bc-hidden", !shouldShow);
+}
+
+function initMessageBoxVisibilityObserver() {
+  if (isInlineSite()) return;
+
+  const target = document.querySelector(".vs-message-box__form");
+  if (!target) {
+    _messageBoxFormInView = false;
+    updateFloatingPillVisibilityForMessageBox();
+    return;
+  }
+
+  // Already observing this exact element.
+  if (_messageBoxFormObserver && _messageBoxFormObservedEl === target) {
+    updateFloatingPillVisibilityForMessageBox();
+    return;
+  }
+
+  if (_messageBoxFormObserver) {
+    _messageBoxFormObserver.disconnect();
+  }
+
+  _messageBoxFormObservedEl = target;
+  _messageBoxFormObserver = new IntersectionObserver(
+    ([entry]) => {
+      _messageBoxFormInView = !!entry?.isIntersecting;
+      updateFloatingPillVisibilityForMessageBox();
+    },
+    { threshold: 0.15 }
+  );
+
+  _messageBoxFormObserver.observe(target);
+  updateFloatingPillVisibilityForMessageBox();
 }
 
 // ── CDN loading ───────────────────────────────────────────────
@@ -222,11 +362,11 @@ function ensureSetup() {
 // ── HTML injection ────────────────────────────────────────────
 
 function buildWelcomeHtml({ inline = false } = {}) {
-  const suggestionsHtml = WL_WELCOME.suggestions.map((item) => {
+  const suggestionsHtml = WELCOME.suggestions.map((item) => {
     const text = typeof item === "string" ? item : item.text;
     const icon = typeof item === "object" && item.icon === "phone"
-      ? `<span class="bc-welcome-chip__icon">${WL_PHONE_SVG}</span>`
-      : `<span class="bc-welcome-chip__icon">${WL_SPARKLE_SVG}</span>`;
+      ? `<span class="bc-welcome-chip__icon">${SEND_SVG}</span>`
+      : `<span class="bc-welcome-chip__icon">${SPARKLE_SVG}</span>`;
     return `<button type="button" class="bc-welcome-chip" data-message="${text.replace(/"/g, "&quot;")}">${icon}<span>${text}</span></button>`;
   }).join("");
 
@@ -235,25 +375,25 @@ function buildWelcomeHtml({ inline = false } = {}) {
     : `<button id="bc-welcome-close" class="bc-welcome-close" title="Close" aria-label="Close">&#x00D7;</button>`;
 
   return `
-    <div id="bc-welcome-launcher" role="region" aria-label="Grace welcome">
+    <div id="bc-welcome-launcher" role="region" aria-label="Vision Super welcome">
       ${closeBtn}
       <div class="bc-welcome-inner">
         <div class="bc-welcome-intro">
-          <h1 class="bc-welcome-heading">${WL_WELCOME.heading}</h1>
-          <p class="bc-welcome-sub">${WL_WELCOME.subheading}</p>
+          <h1 class="bc-welcome-heading">${WELCOME.heading}</h1>
+          <p class="bc-welcome-sub">${WELCOME.subheading}</p>
         </div>
 
         <form id="bc-welcome-form" class="bc-welcome-form">
           <div class="bc-welcome-input-wrap">
-            <span class="bc-welcome-input__sparkle">${WL_SPARKLE_SVG}</span>
+            <span class="bc-welcome-input__sparkle">${SPARKLE_SVG}</span>
             <input
               id="bc-welcome-input"
               type="text"
               autocomplete="off"
-              placeholder="${WL_WELCOME.placeholder}"
-              aria-label="${WL_WELCOME.placeholder}"
+              placeholder="${WELCOME.placeholder}"
+              aria-label="${WELCOME.placeholder}"
             />
-            <button type="submit" class="bc-welcome-send" aria-label="Send message">${WL_SEND_SVG}</button>
+            <button type="submit" class="bc-welcome-send" aria-label="Send message">${SEND_SVG}</button>
           </div>
         </form>
 
@@ -262,9 +402,9 @@ function buildWelcomeHtml({ inline = false } = {}) {
         </div>
 
         <p class="bc-welcome-footer">
-          Grace uses AI to help guide you — human care is always our priority.
-          For urgent support call <a href="${WL_WELCOME.footer.phoneHref}">${WL_WELCOME.footer.phone}</a>.
-          See our <a href="${WL_WELCOME.footer.privacyHref}" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+          Vision Super uses AI to help guide you — human care is always our priority.
+          For urgent support, please visit our support page.
+          See our <a href="${WELCOME.footer.privacyHref}" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
         </p>
       </div>
     </div>
@@ -305,7 +445,7 @@ function buildFabButtonHtml(label) {
 function injectFloatingBar({ label, hidden = false } = {}) {
   if (document.getElementById("bc-fab-button")) return null;
 
-  const brandName = _storedConfig.brandName || "Grace";
+  const brandName = _storedConfig.brandName || "Vision Super";
   const fab = document.createElement("button");
   fab.id = "bc-fab-button";
   fab.setAttribute("aria-label", label || `Ask ${brandName} a question`);
@@ -318,7 +458,7 @@ function injectFloatingBar({ label, hidden = false } = {}) {
 function injectInlineConcierge(target) {
   if (document.getElementById("bc-inline-concierge")) return;
 
-  const brandName = _storedConfig.brandName || "Grace";
+  const brandName = _storedConfig.brandName || "Vision Super";
 
   target.insertAdjacentHTML("afterbegin", `
     <div id="bc-inline-concierge">
@@ -341,6 +481,169 @@ function injectOverlayUI() {
   document.body.insertAdjacentHTML("beforeend", buildChatModalHtml(brandName));
 }
 
+function buildMessageTextBoxHtml() {
+  const styleConfig = _storedConfig.styleConfig || {};
+  const inputPlaceholder =
+    styleConfig.text?.["input.placeholder"] || "Write your message...";
+  const headingLabel =
+    styleConfig.text?.["welcome.heading"] || "Style Config JSON >> welcome.heading";
+
+  return `
+    <div class="vs-message-box" id="vs-hero-section" role="search" aria-label="Ask Vision Super">
+      <h2 class="vs-message-box-title">${headingLabel}</h2>
+      <form class="vs-message-box__form" id="vs-message-box-form">
+        <div class="vs-hero-input-wrapper">
+          <span class="vs-hero-input__sparkle" aria-hidden="true">${SPARKLE_SVG}</span>
+          <input
+            type="text"
+            class="vs-hero-input"
+            placeholder="${inputPlaceholder}"
+            aria-label="${inputPlaceholder}"
+            autocomplete="off"
+          />
+          <button type="submit" class="vs-hero-submit" aria-label="Send message">
+            ${SEND_SVG}
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+}
+
+function bindMessageTextBoxEvents(root) {
+  const form = root.querySelector("#vs-message-box-form") || root.querySelector(".vs-message-box__form");
+  const input = root.querySelector(".vs-hero-input");
+  const submitBtn = root.querySelector(".vs-hero-submit");
+
+  const sendMessage = (text) => {
+    if (!text.trim()) return;
+    console.log("[VS Message Box] Message:", text);
+    const fab = document.getElementById("bc-fab-button");
+    if (fab) {
+      _pendingMessage = text;
+      fab.click();
+    }
+  };
+
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    sendMessage(input?.value || "");
+    if (input) input.value = "";
+  });
+
+  input?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage(input.value);
+      input.value = "";
+    }
+  });
+
+  submitBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    sendMessage(input?.value || "");
+    if (input) input.value = "";
+  });
+}
+
+function syncMessageHeadingWithQuickLinks(root, attemptsLeft = 20) {
+  const title = root?.querySelector(".vs-message-box-title");
+  if (!title) return;
+
+  const quickLinksTitle = document.querySelector(".card-block-icon__title");
+  if (!quickLinksTitle) {
+    if (attemptsLeft > 0) {
+      setTimeout(() => syncMessageHeadingWithQuickLinks(root, attemptsLeft - 1), 150);
+    }
+    return;
+  }
+
+  const computed = window.getComputedStyle(quickLinksTitle);
+  title.style.fontFamily = computed.fontFamily;
+  title.style.fontSize = computed.fontSize;
+  title.style.fontWeight = computed.fontWeight;
+  title.style.lineHeight = computed.lineHeight;
+  title.style.letterSpacing = computed.letterSpacing;
+  title.style.color = computed.color;
+}
+
+async function injectHeroSection() {
+  // Check if already injected
+  if (document.getElementById("vs-hero-section")) return;
+
+  const boxHtml = buildMessageTextBoxHtml();
+
+  // 1. Preferred: inject into requested/live target
+  const targetInfo = await waitForMessageBoxTarget(10000);
+  if (targetInfo?.el) {
+    const position = targetInfo.position || "afterbegin";
+    targetInfo.el.insertAdjacentHTML(position, boxHtml);
+    console.log("[VS Message Box] Injected into", targetInfo.source, "at", position);
+  } else {
+    // Fallbacks if the page structure differs
+    let injected = false;
+    const main = document.querySelector("main");
+    if (main) {
+      main.insertAdjacentHTML("afterbegin", boxHtml);
+      injected = true;
+      console.log("[VS Message Box] Injected at start of <main> (XPath fallback)");
+    }
+
+    if (!injected) {
+      const header = document.querySelector("header");
+      if (header) {
+        header.insertAdjacentHTML("afterend", boxHtml);
+        injected = true;
+        console.log("[VS Message Box] Injected after <header> (XPath fallback)");
+      }
+    }
+
+    if (!injected) {
+      document.body.insertAdjacentHTML("afterbegin", boxHtml);
+      console.log("[VS Message Box] Injected at start of <body> (XPath fallback)");
+    }
+  }
+
+  const messageBox = document.getElementById("vs-hero-section");
+  if (!messageBox) {
+    console.warn("[VS Message Box] Failed to locate injected text box");
+    return;
+  }
+
+  bindMessageTextBoxEvents(messageBox);
+  syncMessageHeadingWithQuickLinks(messageBox);
+  initMessageBoxVisibilityObserver();
+}
+
+async function ensureMessageBoxVisible() {
+  if (document.getElementById("vs-hero-section")) return;
+  if (_messageBoxInjecting) return;
+
+  _messageBoxInjecting = true;
+  try {
+    await injectHeroSection();
+  } finally {
+    _messageBoxInjecting = false;
+  }
+}
+
+function startMessageBoxPersistence() {
+  if (_messageBoxObserver) return;
+
+  _messageBoxObserver = new MutationObserver(() => {
+    if (document.getElementById("vs-hero-section")) return;
+
+    if (_messageBoxReinjectTimer) clearTimeout(_messageBoxReinjectTimer);
+    _messageBoxReinjectTimer = setTimeout(() => {
+      _messageBoxReinjectTimer = null;
+      ensureMessageBoxVisible();
+      initMessageBoxVisibilityObserver();
+    }, 150);
+  });
+
+  _messageBoxObserver.observe(document.body, { childList: true, subtree: true });
+}
+
 async function injectUI() {
   if (isInlineSite()) {
     const target = await waitForInjectionTarget(".root.responsivegrid");
@@ -349,10 +652,15 @@ async function injectUI() {
       return;
     }
     injectInlineConcierge(target);
+    // Still inject message text box for inline sites
+    await injectHeroSection();
     return;
   }
 
   injectOverlayUI();
+  // Inject the pill message text box into the page XPath target
+  await injectHeroSection();
+  startMessageBoxPersistence();
 }
 
 // ── State machine (fab ↔ welcome ↔ chat) ────────────────────────
@@ -361,6 +669,23 @@ let currentState = "fab";
 let bcInitialized = false;
 let _pendingMessage = null;
 let _whiteLadyChatStarted = false;
+
+// ── URL query parameter handler ───────────────────────────────
+
+function extractBcQueryParam() {
+  try {
+    const url = new URL(window.location.href);
+    const query = url.searchParams.get("_bc_q");
+    if (query) {
+      const decoded = decodeURIComponent(query);
+      console.log("[BC] Detected _bc_q parameter:", decoded);
+      return decoded;
+    }
+  } catch (e) {
+    console.warn("[BC] Failed to parse URL query:", e);
+  }
+  return null;
+}
 
 function setState(newState) {
   currentState = newState;
@@ -377,12 +702,11 @@ function setState(newState) {
     return;
   }
 
-  const fab      = document.getElementById("bc-fab-button");
   const modal    = document.getElementById("bc-chat-modal");
   const backdrop = document.getElementById("bc-modal-backdrop");
   const welcome  = document.getElementById("bc-welcome-launcher");
 
-  fab?.classList.toggle("bc-hidden", newState !== "fab");
+  updateFloatingPillVisibilityForMessageBox();
   modal?.classList.toggle("bc-visible", newState === "chat");
   backdrop?.classList.toggle("bc-visible", newState === "chat");
   welcome?.classList.toggle("bc-visible", newState === "welcome");
@@ -420,9 +744,9 @@ function bootstrapBC() {
 
 const PRODUCT_OF_INTEREST_OPTIONS = [
   "General information",
-  "Arrange a funeral",
+  "Learn more",
   "Plan ahead",
-  "Existing plan",
+  "Other",
 ];
 
 function findAssociatedLabel(field) {
@@ -513,14 +837,7 @@ function removeCompanyElementFromModal() {
   return false;
 }
 
-function rewriteEnterpriseSpecialistMatch(match) {
-  if (match === match.toUpperCase()) return "FUNERAL SPECIALIST";
-  if (match[0] === match[0].toUpperCase()) return "Funeral Specialist";
-  return "funeral specialist";
-}
-
 const UI_TEXT_REPLACEMENTS = [
-  { pattern: /enterprise specialist/gi, replace: rewriteEnterpriseSpecialistMatch },
   { pattern: /tennis-australia-demo\s*\(\s*VA7\s*\)/gi, replace: "KR Demo instance" },
 ];
 
@@ -787,6 +1104,7 @@ function initEventListeners() {
   document.getElementById("bc-fab-button").addEventListener("click", handleFabClick);
   document.getElementById("bc-btn-close").addEventListener("click", handleClose);
   document.getElementById("bc-modal-backdrop").addEventListener("click", handleClose);
+  initMessageBoxVisibilityObserver();
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && currentState === "chat") handleClose();
@@ -864,7 +1182,26 @@ async function init() {
   const siteDomain = _storedConfig.siteDomain;
   if (siteDomain && !window.location.hostname.endsWith(siteDomain)) return;
 
+  // Check for _bc_q query parameter to auto-launch with a question
+  const bcQuery = extractBcQueryParam();
+  if (bcQuery) {
+    _pendingMessage = bcQuery;
+  }
+
   await injectUI();
+  startMessageBoxPersistence();
+
+  // Next.js hydration can replace nodes shortly after DOMContentLoaded.
+  // Re-check once the full page load settles.
+  window.addEventListener(
+    "load",
+    () => {
+      setTimeout(() => {
+        ensureMessageBoxVisible();
+      }, 300);
+    },
+    { once: true }
+  );
   applyTheme();
   initEventListeners();
 
@@ -881,6 +1218,18 @@ async function init() {
   ensureSetup().catch((err) =>
     console.warn("[BC] Background pre-load failed:", err)
   );
+
+  // Auto-launch chatbot if _bc_q parameter was detected
+  if (bcQuery) {
+    // Give the UI a moment to settle, then trigger FAB click
+    setTimeout(() => {
+      const fab = document.getElementById("bc-fab-button");
+      if (fab) {
+        console.log("[BC] Auto-launching chatbot with question:", bcQuery);
+        fab.click();
+      }
+    }, 500);
+  }
 
   console.log("[BC] UI injected and ready", _storedConfig);
 }
